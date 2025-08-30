@@ -5,6 +5,7 @@ venv_optimize_inference_speculative_decoding
 pics/
 
 # Files
+*.csv
 
 # Python
 __pycache__/
