@@ -1,0 +1,11 @@
+# Venv
+venv_optimize_inference_speculative_decoding
+
+# Folders
+pics/
+
+# Files
+
+# Python
+__pycache__/
+*.pyc

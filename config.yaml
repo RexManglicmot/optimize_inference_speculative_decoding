@@ -1,0 +1,66 @@
+# config.yaml
+
+project:
+  name: "specdec_inference_opt"
+  seed: 42
+  output_dir: "outputs"
+  save_raw_outputs: true     # save raw_generations.jsonl (per-prompt token trace)
+  save_metrics: true         # always save results.csv
+  save_plots: true           # save figures into outputs/
+
+dataset:
+  name: "CORD-19"
+  path: "data/cord19_subset.csv"   # sampled 100–500 abstracts
+  text_field: "abstract"           # column containing text prompts
+  sample_size: 200                 # number of rows to benchmark
+
+models:
+  drafts:                          # local small models
+    - id: "distilgpt2"
+      precision: "fp16"
+    - id: "gpt2"
+      precision: "fp16"
+    - id: "EleutherAI/gpt-neo-125M"
+      precision: "fp16"
+    - id: "EleutherAI/gpt-neo-350M"
+      precision: "fp16"
+    - id: "gpt2-medium"
+      precision: "fp16"
+  verifier:                        # remote verifier (Hugging Face Inference API)
+    id: "EleutherAI/gpt-j-6B"
+    precision: "fp16"
+    device: "remote"               # use HF Inference API (HF_API_KEY from .env)
+
+decoding:
+  speculative_enabled: true
+  draft_k: 4                       # tokens proposed per step by draft
+  max_new_tokens: 128
+  temperature: 0.7
+  top_p: 0.9
+  stop_on_newline: false
+
+evaluation:
+  latency:
+    enabled: true
+    percentiles: [50, 95]
+  throughput:
+    enabled: true
+  acceptance_rate:
+    enabled: true
+  quality:
+    perplexity: true
+    bleu: true
+    semantic_similarity: true
+  cost:
+    enabled: true                 # set true if you want to model $ cost
+
+plots:
+  latency_bar: true
+  throughput_bar: true
+  acceptance_bar: true
+  latency_vs_accept_scatter: true
+  cost_bar: true
+
+logging:
+  level: "INFO"                    # DEBUG | INFO | WARNING | ERROR
+  progress_every: 10               # log every N prompts
