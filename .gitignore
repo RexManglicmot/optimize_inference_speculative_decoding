@@ -10,3 +10,7 @@ pics/
 # Python
 __pycache__/
 *.pyc
+# large data
+metadata.csv
+*.parquet
+*.zip
