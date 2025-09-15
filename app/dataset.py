@@ -99,3 +99,34 @@ def load_prompts() -> List[Dict]:
             })
 
     return outputs
+
+"""
+dataset.py and returns a Python list of dictionaries.
+
+Looks like this:
+{
+    "id": "12345",                   # str, unique id from your CSV
+    "prompt_text": "Q: ... A:",      # str, full rendered prompt (for debugging/logging)
+    "input_ids": torch.LongTensor,   # 1D tensor of token IDs (on CPU)
+    "attention_mask": torch.LongTensor  # 1D tensor of 1s, same length as input_ids
+}
+
+Overall return is:
+List[Dict[str, Any]]
+
+The list is returned to whoever calls load_prompts() (e.g., in benchmarks.py).
+
+dataset.py runs entirely on CPU.
+- CSV reading: pandas → CPU.
+- Prompt rendering: Python strings → CPU.
+- Tokenization: transformers.AutoTokenizer → CPU.
+- Tensors created: torch.LongTensor → CPU.
+
+This is intentional:
+- Tokenization is fast on CPU and doesn’t benefit much from GPU.
+- Keeping them on CPU avoids filling GPU memory before you actually run inference.
+
+In benchmarks.py, right before you feed a batch into the draft/verifier models, you move them to GPU:
+batch_input_ids = batch_input_ids.to("cuda", non_blocking=True)
+batch_attention_mask = batch_attention_mask.to("cuda", non_blocking=True)
+"""

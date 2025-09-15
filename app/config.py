@@ -43,3 +43,4 @@ if __name__ == "__main__":
     print("HF_API_TOKEN found:", HF_API_TOKEN is not None)
 
 # Run python3 -m app.config
+# It worked!!
