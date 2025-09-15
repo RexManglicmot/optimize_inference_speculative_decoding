@@ -6,6 +6,8 @@ pics/
 
 # Files
 *.csv
+.env
+venv_optimize_inference_speculative_decoding
 
 # Python
 __pycache__/
@@ -15,4 +17,3 @@ metadata.csv
 *.parquet
 *.zip
 
-ok

@@ -3,41 +3,55 @@
 project:
   name: "specdec_inference_opt"
   seed: 42
-  output_dir: "outputs"
-  save_raw_outputs: true     # save raw_generations.jsonl (per-prompt token trace)
-  save_metrics: true         # always save results.csv
-  save_plots: true           # save figures into outputs/
+  input_dir: "./data/processed"             # where PubMedQA subset or README lives
+  output_dir: "./outputs"         # all results/plots written here
+  save_raw_outputs: false       # set true to save raw_generations.jsonl (slower)
+  save_metrics: true
+  save_plots: true
 
 dataset:
-  name: "CORD-19"
-  path: "data/cord19_subset.csv"   # sampled 100–500 abstracts
-  text_field: "abstract"           # column containing text prompts
-  sample_size: 200                 # number of rows to benchmark
+  source: "huggingface"
+  hf_name: "pubmed_qa"
+  hf_subset: "pqa_labeled"
+  split: "train"
+  text_fields:
+    id: "id"
+    question: "question"
+    abstract: "context"         # alias PubMedQA "context" → abstract
+  prompt_template: |
+    Q: {question}
+    Context: {abstract}
+    A:
+  sample_size: 200
+  max_input_tokens: 512
+  chunking:
+    enabled: false
+    window_tokens: 896
+    overlap_tokens: 128
 
 models:
-  drafts:                          # local small models
+  drafts:
     - id: "distilgpt2"
-      precision: "fp16"
     - id: "gpt2"
-      precision: "fp16"
     - id: "EleutherAI/gpt-neo-125M"
-      precision: "fp16"
     - id: "EleutherAI/gpt-neo-350M"
-      precision: "fp16"
     - id: "gpt2-medium"
-      precision: "fp16"
-  verifier:                        # remote verifier (Hugging Face Inference API)
+  verifier:
     id: "EleutherAI/gpt-j-6B"
     precision: "fp16"
-    device: "remote"               # use HF Inference API (HF_API_KEY from .env)
+  device: "cuda"                # Vast.ai GPU (CUDA, fp16)
 
 decoding:
   speculative_enabled: true
-  draft_k: 4                       # tokens proposed per step by draft
-  max_new_tokens: 128
+  draft_k: 6                    # increased to keep GPU busy
+  max_new_tokens: 256           # longer generations sustain GPU kernels
   temperature: 0.7
   top_p: 0.9
   stop_on_newline: false
+
+batching:
+  enabled: true
+  batch_size: 8                 # bump to 16 if VRAM allows
 
 evaluation:
   latency:
@@ -47,20 +61,25 @@ evaluation:
     enabled: true
   acceptance_rate:
     enabled: true
+  baseline:
+    run_verifier_only: true     # needed for speedup/disagreement metrics
   quality:
-    perplexity: true
-    bleu: true
-    semantic_similarity: true
+    perplexity: false
+    bleu: false
+    semantic_similarity: false
   cost:
-    enabled: true                 # set true if you want to model $ cost
+    enabled: true
+    price_per_1k_tokens_usd: 0.002  # example; adjust if you want to model $ cost
 
 plots:
   latency_bar: true
   throughput_bar: true
   acceptance_bar: true
-  latency_vs_accept_scatter: true
-  cost_bar: true
+  disagreement_bar: true
+  speedup_bar: true
+  latency_vs_accept_scatter: false
+  cost_bar: false
 
 logging:
-  level: "INFO"                    # DEBUG | INFO | WARNING | ERROR
-  progress_every: 10               # log every N prompts
+  level: "INFO"
+  progress_every: 10
