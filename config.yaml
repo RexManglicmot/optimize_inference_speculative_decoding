@@ -10,17 +10,15 @@ project:
   save_plots: true
 
 dataset:
-  source: "huggingface"
-  hf_name: "pubmed_qa"
-  hf_subset: "pqa_labeled"
-  split: "train"
+  source: "csv"
+  path: "./data/processed/my_data.csv"
   text_fields:
     id: "id"
     question: "question"
-    abstract: "context"         # alias PubMedQA "context" → abstract
+    abstract: "contexts"         # alias PubMedQA "context" → abstract
   prompt_template: |
     Q: {question}
-    Context: {abstract}
+    Contexts: {abstract}
     A:
   sample_size: 200
   max_input_tokens: 512
@@ -31,11 +29,11 @@ dataset:
 
 models:
   drafts:
-    - id: "distilgpt2"
-    - id: "gpt2"
+    - id: "distilbert/distilgpt2" # distilgpt2.....hmmmmmm
+    - id: "openai-community/gpt2"
     - id: "EleutherAI/gpt-neo-125M"
-    - id: "EleutherAI/gpt-neo-350M"
-    - id: "gpt2-medium"
+    - id: "EleutherAI/gpt-neo-1.3B"
+    - id: "openai-community/gpt2-medium"
   verifier:
     id: "EleutherAI/gpt-j-6B"
     precision: "fp16"
