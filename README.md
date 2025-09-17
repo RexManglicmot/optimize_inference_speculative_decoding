@@ -5,15 +5,11 @@
 
 
 ## Inspiration
-Running LLMs locally on Mac (MPS/CPU) was **slow and costly** — each token required a full forward pass.  
-Speculative decoding offered a way to **speed up inference** by letting small draft models propose tokens and a large verifier check them in batches.  
-This project taught me both about **LLM acceleration** and using **cloud GPUs (Vast.ai)** for real-world deployments.
+Running LLMs locally on Mac (MPS/CPU) was **slow and costly** — each token required a full forward pass. **Speculative decoding** offered a way to **speed up inference** by letting small draft models propose tokens and a large verifier check them in batches. This project taught me both about LLM acceleration and using cloud GPUs (Vast.ai) for real-world deployments.
 
 
 ## Introduction
-Large Language Models (LLMs) power apps in customer support, healthcare, and enterprise search.  
-But: **each token = a full pass of a big model** → high latency & high cost.  
-This makes real-time interactions hard to scale.
+Large Language Models (LLMs) power apps in customer support, healthcare, and enterprise search. But, **each token = a full pass of a big model** → high latency & high cost. This makes real-time interactions hard to scale.
 
 **Speculative decoding solves this** by:  
 - Using **small draft models** to propose token blocks (cheap & fast)  
@@ -32,7 +28,10 @@ This makes real-time interactions hard to scale.
 - **Token block:** Short sequence (4–8 tokens) proposed at once.  
 - **Acceptance rate:** % of draft tokens approved by the verifier.  
 
-*Analogy:* Drafts = interns proposing answers. Verifier = manager approving/correcting. Faster than the manager writing everything themselves.
+*Analogy:* 
+Drafts = interns proposing answers. 
+Verifier = manager approving/correcting. 
+Faster than the manager writing everything themselves.
 
 
 ## Example (PubMed QA)
@@ -93,18 +92,21 @@ All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
 ## Visuals
 
 ![Latency](outputs/latency_grouped_p50_p95.png)  
-  *Median (p50) and tail (p95) latency per token. Drafts cut response time by up to 2.5× vs baseline.*  
+    *Median (p50) and tail (p95) latency per token. Draft models significantly reduce latency compared to the baseline verifier-only run. The smallest draft, `distilgpt2`, cuts latency by more than half, showing speculative decoding’s strongest gains in responsiveness.*  
+  
+
 
 ![Throughput](outputs/throughput_grouped_p50_p95.png)  
-  *Tokens generated per second. Smaller drafts dramatically boost throughput, enabling higher query volume.*  
+    *Tokens generated per second. Throughput more than doubles when using smaller drafts like `distilgpt2`, allowing far more queries to be served per second. As draft size increases, throughput improvements taper off, but all drafts outperform the baseline.*  
+  
 
 ![Speedup](outputs/speedup_bar.png)  
-  *Overall acceleration compared to verifier-only decoding. `distilgpt2` delivers ~2.4× speedup.*  
+    *Relative speedup compared to the verifier-only baseline. `distilgpt2` achieves the highest acceleration (~2.4×), while medium and large drafts show smaller but consistent gains. This demonstrates the trade-off between draft size and efficiency benefits.*  
+  
 
 ![Acceptance](outputs/acceptance_bar.png)  
-  *Proportion of draft tokens accepted by the verifier. Larger drafts are slower but align closely (~95–96%).*  
-
-
+    *Percentage of draft tokens accepted by the verifier. Larger drafts such as `gpt2-medium` and `gpt2-large` align closely with the verifier (≈95–96%), while `distilgpt2` has lower acceptance (~80%) but still provides strong speed improvements. The chart highlights the balance between speed (small drafts) and fidelity (large drafts).*  
+  
 
 ## Tech Stack
 - Python, PyTorch, Hugging Face Transformers, pandas, numpy, matplotlib, PyYAML, Cloud GPUs (Vast.ai)
