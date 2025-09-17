@@ -34,7 +34,7 @@ Process repeats until EOS token → then move to the next QA pair.
 
 ## Models
 
-All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
+All models are from the GPT-2 family (shared tokenizer ensures alignment).
 
 | Role      | Model ID                       | Params | Notes                          |
 |-----------|--------------------------------|--------|--------------------------------|
@@ -103,7 +103,7 @@ Outputs (CSV tables, plots, JSON logs)
 
 
 ## Conclusion
-This project shows that speculative decoding makes LLMs **2–3× faster** while preserving verifier-level accuracy. By combining small draft models for speed with a large verifier model for correctness, we **reduced latency, cost per query, and GPU load** without sacrificing quality. This approach unlocks real-time, scalable applications where both speed and accuracy are critical.
+This project shows that speculative decoding makes LLMs **2–3× faster** while preserving verifier-level accuracy. By combining small draft models for speed with a large verifier model for correctness, this project showed **reduced latency, cost per query, and GPU load** without sacrificing quality. This project unlocks real-time, scalable applications where both speed and accuracy are critical.
 
 ## Tech Stack
 Python, PyTorch, Hugging Face Transformers, pandas, numpy, matplotlib, PyYAML, Cloud GPUs (Vast.ai)
