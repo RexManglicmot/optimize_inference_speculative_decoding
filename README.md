@@ -12,7 +12,7 @@ Large Language Models (LLMs) power apps in customer support, healthcare, and ent
 
 Speculative decoding solves this using **small draft models** to propose token candidate blocks (short sequence of 4–8 tokens) proposed at once which is fast and cheap for the verifier and a **large verifier model** to approve/reject these blocks. An analogis is that drafts are like interns proposing answers and verifiers are like managers that approve or reject. The manager doesnt have to write the answers themselves, it just checks.
 
-The benefits are **lower latency**,**reduced cost per query**,**higher throughput (serve more users per GPU)**, **same quality as baseline (verifier is final authority)**. 
+The benefits are **lower latency**, **reduced cost per query**, **higher throughput** (serve more users per GPU)**, **same quality as baseline** (verifier is final authority). 
 
 ## Example (PubMed QA)
 
@@ -43,18 +43,6 @@ All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
 | Draft     | openai-community/gpt2-large    | ~774M  | High acceptance, slower        |
 | Verifier  | openai-community/gpt2-xl       | ~1.5B  | Final authority, baseline-only |
 
-
-## Metrics
-
-- **Latency (p50/p95):** time per token  
-- **Throughput (tok/sec):** tokens generated per second  
-- **Speedup (×):** vs verifier-only baseline  
-- **Acceptance Rate (%):** % draft tokens accepted by verifier  
-
-
-## Tech Stack
-- Python, PyTorch, Hugging Face Transformers, pandas, numpy, matplotlib, PyYAML, Cloud GPUs (Vast.ai)
-
 ## Workflow
 
 ```text
@@ -69,6 +57,12 @@ Metrics Logging (latency, throughput, acceptance, speedup)
 Outputs (CSV tables, plots, JSON logs)
 ```
 
+## Metrics
+
+- **Latency (p50/p95):** time per token  
+- **Throughput (tok/sec):** tokens generated per second  
+- **Speedup (×):** vs verifier-only baseline  
+- **Acceptance Rate (%):** % draft tokens accepted by verifier  
 
 
 ## Results: Table
@@ -109,5 +103,7 @@ Outputs (CSV tables, plots, JSON logs)
 
 
 ## Conclusion
-This project shows that speculative decoding makes LLMs **2–3× faster** while preserving verifier-level accuracy. By combining **small draft models** for speed with a **large verifier model** for correctness, we reduced **latency, cost per query, and GPU load** without sacrificing quality. For biomedical QA and beyond, this approach unlocks **real-time, scalable applications** where both speed and accuracy are critical.
+This project shows that speculative decoding makes LLMs **2–3× faster** while preserving verifier-level accuracy. By combining **small draft models** for speed with a **large verifier model** for correctness, we reduced **latency, cost per query, and GPU load** without sacrificing quality. This approach unlocks real-time, scalable applications where both speed and accuracy are critical.
 
+## Tech Stack
+- Python, PyTorch, Hugging Face Transformers, pandas, numpy, matplotlib, PyYAML, Cloud GPUs (Vast.ai)
