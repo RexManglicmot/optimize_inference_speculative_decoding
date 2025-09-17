@@ -92,16 +92,16 @@ All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
 
 ## Visuals
 
-- ![Latency](outputs/latency_grouped_p50_p95.png)  
+![Latency](outputs/latency_grouped_p50_p95.png)  
   *Median (p50) and tail (p95) latency per token. Drafts cut response time by up to 2.5× vs baseline.*  
 
-- ![Throughput](outputs/throughput_grouped_p50_p95.png)  
+![Throughput](outputs/throughput_grouped_p50_p95.png)  
   *Tokens generated per second. Smaller drafts dramatically boost throughput, enabling higher query volume.*  
 
-- ![Speedup](outputs/speedup_bar.png)  
+![Speedup](outputs/speedup_bar.png)  
   *Overall acceleration compared to verifier-only decoding. `distilgpt2` delivers ~2.4× speedup.*  
 
-- ![Acceptance](outputs/acceptance_bar.png)  
+![Acceptance](outputs/acceptance_bar.png)  
   *Proportion of draft tokens accepted by the verifier. Larger drafts are slower but align closely (~95–96%).*  
 
 
