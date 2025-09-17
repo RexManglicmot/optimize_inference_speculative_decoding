@@ -23,3 +23,9 @@ metadata.csv
 # Ignore tarballs
 *.tar.gz
 
+# VS Code workspace files
+*.code-workspace
+
+# macOS system file
+.DS_Store
+
