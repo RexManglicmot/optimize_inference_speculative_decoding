@@ -1,7 +1,6 @@
 # Speculative Decoding for PubMedQA
 
-> **2–3× faster LLM inference** with draft–verifier decoding, while preserving verifier-level quality.  
-> Applied to biomedical question answering with the PubMedQA dataset.
+> Speculative Decoding provides **2–3× faster LLM inference** with draft–verifier decoding while preserving verifier-level quality with the PubMedQA dataset.
 
 
 ## Inspiration
@@ -9,17 +8,17 @@ Running LLMs locally on Mac (MPS/CPU) was **slow and costly** — each token req
 
 
 ## Introduction
-Large Language Models (LLMs) power apps in customer support, healthcare, and enterprise search. But, **each token = a full pass of a big model** → high latency & high cost. This makes real-time interactions hard to scale.
+Large Language Models (LLMs) power apps in customer support, healthcare, and enterprise search. But, **each token ->  a full pass of a big model → high latency & high cost**. This makes real-time interactions hard to scale.
 
-**Speculative decoding solves this** by:  
+Speculative decoding solves this by:  
 - Using **small draft models** to propose token blocks (cheap & fast)  
 - Using a **large verifier model** to approve/reject in one pass (accurate)  
 
-**Benefits:**  
-- Lower latency (real-time UX)  
-- Reduced cost per query  
-- Higher throughput (serve more users per GPU)  
-- Same quality as baseline (verifier is final authority)
+Benefits:  
+- **Lower latency**  
+- **Reduced cost per query**   
+- **Higher throughput (serve more users per GPU)**   
+- **Same quality as baseline (verifier is final authority)** 
 
 
 ## Key Terms
@@ -29,9 +28,9 @@ Large Language Models (LLMs) power apps in customer support, healthcare, and ent
 - **Acceptance rate:** % of draft tokens approved by the verifier.  
 
 *Analogy:* 
-Drafts = interns proposing answers. 
-Verifier = manager approving/correcting. 
-Faster than the manager writing everything themselves.
+- Drafts = interns proposing answers. 
+- Verifier = manager approving/correcting. 
+- Faster than the manager writing everything themselves.
 
 
 ## Example (PubMed QA)
@@ -83,10 +82,7 @@ All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
 | Baseline (gpt2-xl)    | 0.0205               | 48.7                   | 1.00×       | N/A            |
 
 **Takeaways:**  
-- Small drafts = biggest speedup but lower acceptance.  
-- Larger drafts = higher acceptance but diminishing returns.  
-- **distilgpt2 = sweet spot** for maximum acceleration.  
-
+    *Smaller drafts deliver the largest speedups but come with lower acceptance rates, while larger drafts achieve higher acceptance but only modest efficiency gains. Overall, `distilgpt2` strikes the best balance, offering the strongest acceleration without overly sacrificing fidelity.*  
 
 
 ## Visuals
