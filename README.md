@@ -1,5 +1,5 @@
 ## Inspiration for this Project
-
+Inference takes a long time, and when I first started I ran LLMs locally on my MacOS which had a MPS and CPU. Because of such, generating the results took such a long time, and I wanted a learn a way to speed up inference and thus this project. Learning about speculative decoding made me push myself to work with GPUs via the cloud on Vast Ai. Now, I know both about speeding up inference and am comfortable using third party GPUs platforms in projects. 
 
 
 ## Introduction
