@@ -3,23 +3,23 @@
 
 
 ## Introduction
-Large Language Models (LLMs) enable powerful applications in customer support, healthcare Q&A, and enterprise search. However, they are **slow and expensive to run in production**: each generated token requires a full forward pass through a large model, leading to high latency for users and high compute costs for companies. This makes it difficult to deliver real-time interactions at scale without overspending on infrastructure.
+Large Language Models (LLMs) enable powerful applications in customer support, healthcare Q&A, and enterprise search. However, they are **slow and expensive to run in production**: **each generated token requires a full forward pass through a large model**, leading to high latency for users and high compute costs for companies. This makes it difficult to deliver real-time interactions at scale without overspending on infrastructure.
 
 ## Speculative Decoding
-Speculative decoding is a technique to accelerate LLM inference while preserving output quality. Instead of generating tokens one by one with a large, costly model, several smaller draft models propose multiple tokens in parallel. A larger verifier model then checks these tokens in a single pass:
+Speculative decoding is a technique to accelerate LLM inference while preserving output quality. Instead of generating tokens one by one with a large and costly model, several smaller draft models propose multiple tokens in parallel. A larger verifier model then checks these tokens in a single pass:
 
 1) If valid → the tokens are committed all at once.
 2) If not → the system falls back to standard decoding.
 
 This mechanism allows speculative decoding to achieve significant latency reductions and lower cost per query, without sacrificing the correctness of the verifier’s outputs.
 
-Business & Technical Benefits
+Business & Technical Benefits:
 1) Lower latency → real-time responsiveness improves user experience.
 2) Reduced cost per query → fewer verifier passes cut GPU/cloud spend.
 3) Higher throughput → serve more users with the same infrastructure. 
 4) Preserved quality → outputs remain as accurate as the verifier baseline, maintaining trust in critical domains like healthcare and finance.
 
-### Key Terms
+## Key Terms
 - **Draft models (small and fast):**  
   Lightweight language models that quickly generate short blocks of candidate tokens.  
   They are cheaper to run and act as “speculators,” proposing possible continuations of the answer.
@@ -37,7 +37,7 @@ Business & Technical Benefits
 - The system saves effort because the expert doesn’t need to write every word, just approve or fix the interns’ suggestions.
 
 
-### Example: PubMed QA
+## Example: PubMed QA
 
 **Question:**  
 *What are common first-line treatments for non-small cell lung cancer (NSCLC)?*  
@@ -108,6 +108,19 @@ The large verifier model **can** generate the full answer on its own, but doing 
 If an answer is ~100 tokens long, that means ~100 expensive passes. **Speculative decoding makes this faster.**
 
 
+### Why a Separate Was Needed
+
+Most of the work is done in `benchmark.py` with the help the Hugging Face `assistant_model` argument path thats provides a fast way to run speculative decoding, but it comes with key limitations:
+
+- **Batch size fixed to 1:** The API forces `batch_size=1`, so it can’t measure acceptance across multiple queries in parallel.  
+- **No token-level fidelity info:** It only returns final decoded text. Detailed agreement between drafts and the verifier (needed for acceptance rate) is hidden.  
+- **Metrics gap:** Core evaluation metrics like Acceptance Rate (%) require token-by-token verifier probabilities, which the fast path (benchmark.py) doesn’t expose.
+
+**Solution:**  
+Built a **separate audit script** `audit_benchmark.py` that replays prompts through the drafts and verifier explicitly. This slower path captures per-token acceptance/disagreement and logs full fidelity metrics, while the main speculative loop remains optimized for generation speed.
+
+
+
 ## Dataset
 PubMedQA
 
@@ -120,8 +133,9 @@ Baseline-Fideliuty Evaluation. No Gold labels
 
 ## Models
 
-All draft and verifier models used in this project are part of the **GPT-2 family**, which are transformer-based, decoder-only language models trained on large internet text corpora.  
-They share the **GPT-2 tokenizer**, ensuring consistent tokenization across models of different sizes.
+All draft and verifier models used in this project are part of the **GPT-2 family**, which are transformer-based, decoder-only language models trained on large internet text corpora.
+
+They share the **GPT-2 tokenizer**, ensuring consistent tokenization across models of different sizes. Because all models belong to the **GPT-2 family** and use the **same GPT-2 tokenizer**, draft tokens align naturally with the verifier’s token space. This compatibility makes speculative decoding possible without needing additional alignment steps.
 
 ### Draft Models (small and fast)
 - **distilgpt2 (~82M params)**  
@@ -139,26 +153,24 @@ They share the **GPT-2 tokenizer**, ensuring consistent tokenization across mode
 
 ---
 
-### Key Point
-Because all models belong to the **GPT-2 family** and use the **same GPT-2 tokenizer**, draft tokens align naturally with the verifier’s token space. This compatibility makes speculative decoding possible without needing additional alignment steps.
 
 ## Metrics 
-1) **Latency** (p50 and p95) 
+1) **Latency** (at p50 and p95, sec/token) 
 - Time per generated token/request
 - Shows accelearation relative to baseline (verifier only).
 - How slow/fast each token comes
 - Lower = faster response
 
-2) **Throughout** (token/sec)
+2) **Throughout** (at p50 and p95, token/sec)
 - How many tokens per second (or queries per second)
 - Higher = more overall capacity
 
-3) **Speedup vs baseline**
+3) **Speedup vs baseline** (%)
 - It is a ratio of draft to basdline
 - How much faster (or slower) you are compared to the baseline.
 - Higher leads to faster turnaround
 
-4) **Acceptance Rate (%)**
+4) **Acceptance Rate** (at p50 and 95, %)
 - What percentage of draft tokens were accepted by the verifier
 - Higher leads to more efficiency and less recomputation
 
@@ -172,8 +184,6 @@ time
 matplotlib
 PyYAML
 logging
-
-
 
 ## Workflow
 ```text
@@ -217,13 +227,15 @@ logging
 
 ```
 
+
+
 ## Results
 
 
 ### Tables
 Performance with full 712 rows
 
-| model | latency_p50 (s/token) | latency_p95 (s/token) | throughput_p50 (token/s) | throughput_p95 (token/s) | speedup (×) |
+| model | latency_p50 (sec/token) | latency_p95 (sec/token) | throughput_p50 (token/sec) | throughput_p95 (token/sec) | speedup (×) |
 | --- | --- | --- | --- | --- | --- |
 | distilgpt2 | 0.0084 | 0.0112 | 118.9 | 139.2 | 2.44 |
 | openai-community/gpt2-medium | 0.0134 | 0.0158 | 74.8 | 82.0 | 1.54 |
@@ -232,21 +244,25 @@ Performance with full 712 rows
 | BASELINE(verifier_only) | 0.0205 | 0.0210 | 48.7 | 49.4 | 1.00 |
 
 Insights:
+- `distilgpt`2 is the clear winner: lowest latency (0.0084 s/token), highest throughput (~119 tok/s), and ~2.4× speedup over baseline.
+- Bigger draft models bring diminishing returns: `gpt2-medium` (1.54×) and `gpt2-large/gpt2` (~1.2×) are only modestly faster than baseline despite heavier compute.
 
 Performance with half, 356 rows (due to HF)
-| draft_id | samples | acceptance_mean | acceptance_rate_p50 | acceptance_rate_p95 | disagreement | semantic_similarity_mean |
-| --- | --- | --- | --- | --- | --- | --- |
-| distilgpt2 | 356 | 80.3% | 84.4% | 93.1% | 97.5% | 99.8% |
-| openai-community/gpt2 | 356 | 91.9% | 91.0% | 98.8% | 94.7% | 99.8% |
-| openai-community/gpt2-large | 356 | 95.9% | 98.0% | 99.2% | 95.5% | 99.8% |
-| openai-community/gpt2-medium | 356 | 95.3% | 96.9% | 98.8% | 95.5% | 99.8% |
+| draft_id | samples | acceptance_mean | acceptance_rate_p50 | acceptance_rate_p95 |
+| --- | --- | --- | --- | --- |
+| distilgpt2 | 356 | 80.5% | 84.8% | 93.4% |
+| openai-community/gpt2 | 356 | 91.8% | 90.6% | 98.8% |
+| openai-community/gpt2-large | 356 | 96.0% | 98.0% | 99.6% |
+| openai-community/gpt2-medium | 356 | 95.4% | 96.9% | 99.2% |
+
 
 Insights:
-
+- Larger draft models align more closely with the verifier, with acceptance rates climb from ~80% (`distilgpt2`) up to ~96% (gpt2-large).
+- There is a Trade-off. While small drafts (`distilgpt2`) yield bigger speedups, they come with lower acceptance, meaning the verifier rejects more tokens (less efficient).
 
 
 ### Plots
-![Latency p50 vs p95](outputs/latency_grouped_p50_p95_5.png). How fast responses are (median and tail).
+![Latency p50 vs p95](outputs/latency_grouped_p50_p95.png). How fast responses are (median and tail).
 
 Insights:
 
@@ -256,7 +272,7 @@ Insights:
 
 **Main takeaway**: speculative decoding substantially reduces latency — especially with small, fast draft models like `distilgpt2`, achieving ~2.5× faster token generation compared to verifier-only decoding.
 
-![Throughput p50 vs p95](outputs/throughput_grouped_p50_p95_5.png). How many tokens generated per second (median and tail).
+![Throughput p50 vs p95](outputs/throughput_grouped_p50_p95.png). How many tokens generated per second (median and tail).
 Insights:
 
 - Baseline (`gpt2-xl`) runs at ~49 tokens/sec (p50), the slowest among all.
@@ -266,7 +282,7 @@ Insights:
 **Main takeaway**: Throughput ranking mirrors latency results, smaller drafts deliver more benefit, larger drafts offer diminishing returns. In particular, speculative decoding dramatically boosts throughput when paired with lightweight drafts like `distilgpt2` (≈2.5–3× improvement). Further, higher throughput means more efficient GPU use and more tokens produced per second and a small draft models like `distilgpt2` allow the verifier to accept many tokens in batches which boosted throughput significantly compared to verifier-only runs.
 
 
-![Speedup vs baseline](outputs/speedup_bar_5.png)
+![Speedup vs baseline](outputs/speedup_bar.png)
 Insights:
 
 - `distilgpt2` achieves the highest speedup (~2.44×) over the baseline (`gpt2-xl` verifier only).
@@ -276,28 +292,30 @@ Insights:
 **Main takeaway**: As draft size increases, speedup diminishes because larger drafts themselves take longer to propose tokens, eroding speculative decoding’s advantage.
 
 
-![Acceptance rate](outputs/acceptance_bar_5.png). How often draft proposals are accepted.
+![Acceptance rate](outputs/acceptance_bar.png). How often draft proposals are accepted.
 Insights:
 
 
 - `distilgpt2` has the lowest acceptance rate (~80%) → meaning the verifier rejects ~20% of its draft tokens.
-- `GPT2-medium` and `GPT2-larg`e have the highest acceptance rates (~95–96%), showing they propose tokens very close to what the verifier would generate.
+- `GPT2-medium` and `GPT2-large` have the highest acceptance rates (~95–96%), showing they propose tokens very close to what the verifier would generate.
 - `GPT2-small` (openai-community/gpt2) sits in between at ~92%
 
-**Main takeaway**: Small drafts like distilgpt2 give big latency/throughput gains, but the verifier discards more tokens (lower acceptance). Larger drafts (gpt2-medium / gpt2-large) are slower but achieve very high acceptance, minimizing wasted computation. In sum, choose the draft size depending on outcome: maximum speedup (small draft) or maximum efficiency/accuracy (larger draft).
+**Main takeaway**: Small drafts like `distilgpt2` give big latency/throughput gains, but the verifier discards more tokens (lower acceptance). Larger drafts (`gpt2-medium` / `gpt2-large`) are slower but achieve very high acceptance, minimizing wasted computation. In sum, choose the draft size depending on outcome: maximum speedup (small draft) or maximum efficiency/accuracy (larger draft).
+
+
+## Conclusion
+This project demonstrates that speculative decoding can significantly reduce latency and cost per query while preserving the quality of verifier outputs. By using small draft models to propose candidate continuations and a larger verifier model to validate them, we achieve faster generation without sacrificing correctness. Applied to PubMed QA, this approach highlights how efficiency gains can translate into real-world benefits for biomedical question answering.
 
 
 ## Limitations
-
+- **Verifier dependency:** Speculative decoding cannot correct verifier errors; it only speeds up generation while preserving the verifier’s output quality. The accuracy is just as good at the verifier. For the purpse of this experiment, accuracy was omitted.   
+- **Hugging Face API constraints:** The `assistant_model` path fixes batch size to 1 and hides per-token details, requiring separate scripts for auditing acceptance and disagreement rates.  
 
 
 ## Next Steps
 
 - **Scale to larger datasets:** Move beyond PubMed QA to a bigger biomedical corpus (e.g., full PubMed abstracts or CORD-19) to test performance at scale.  
-- **Use larger verifier models:** Replace GPT-2 XL with a modern LLM (e.g., LLaMA-2, GPT-J-6B, or Falcon) to evaluate how speculative decoding performs with stronger baselines.  
-- **Stress-test real-world applications:** Apply speculative decoding in latency-sensitive domains such as clinical decision support, healthcare chatbots, or biomedical literature search.  
-- **Benchmark efficiency vs cost:** Compare speculative decoding against standard inference to quantify time savings and cost reduction in practical deployment scenarios.  
+- **Use larger verifier models:** Replace `GPT-2 XL` with a modern LLM (e.g., `LLaMA-2`, `GPT-J-6B`, or `Falcon`) to evaluate how speculative decoding performs with stronger baselines.  
+- **Stress-test real-world applications:** Apply speculative decoding in latency-sensitive domains such as clinical decision support, healthcare chatbots, or biomedical literature search.   
 
-
-
-# AI/ML End-to-End Build Order
+## AI/ML End-to-End Build Order
