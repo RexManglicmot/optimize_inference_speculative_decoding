@@ -1,16 +1,14 @@
-# Speculative Decoding for PubMed QA
+# Speculative Decoding for PubMedQA
 
 > **2–3× faster LLM inference** with draft–verifier decoding, while preserving verifier-level quality.  
 > Applied to biomedical question answering with the PubMedQA dataset.
 
----
 
 ## Inspiration
 Running LLMs locally on Mac (MPS/CPU) was **slow and costly** — each token required a full forward pass.  
 Speculative decoding offered a way to **speed up inference** by letting small draft models propose tokens and a large verifier check them in batches.  
 This project taught me both about **LLM acceleration** and using **cloud GPUs (Vast.ai)** for real-world deployments.
 
----
 
 ## Introduction
 Large Language Models (LLMs) power apps in customer support, healthcare, and enterprise search.  
@@ -27,7 +25,6 @@ This makes real-time interactions hard to scale.
 - Higher throughput (serve more users per GPU)  
 - Same quality as baseline (verifier is final authority)
 
----
 
 ## Key Terms
 - **Draft models:** Small, fast LLMs that speculate candidate tokens.  
@@ -37,7 +34,6 @@ This makes real-time interactions hard to scale.
 
 *Analogy:* Drafts = interns proposing answers. Verifier = manager approving/correcting. Faster than the manager writing everything themselves.
 
----
 
 ## Example (PubMed QA)
 
@@ -55,7 +51,6 @@ This makes real-time interactions hard to scale.
 
 Process repeats until EOS token → then move to the next QA pair.
 
----
 
 ## Models
 
@@ -69,7 +64,6 @@ All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
 | Draft     | openai-community/gpt2-large    | ~774M  | High acceptance, slower        |
 | Verifier  | openai-community/gpt2-xl       | ~1.5B  | Final authority, baseline-only |
 
----
 
 ## Metrics
 
@@ -78,7 +72,6 @@ All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
 - **Speedup (×):** vs verifier-only baseline  
 - **Acceptance Rate (%):** % draft tokens accepted by verifier  
 
----
 
 ## Results at a Glance
 
@@ -95,7 +88,7 @@ All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
 - Larger drafts = higher acceptance but diminishing returns.  
 - **distilgpt2 = sweet spot** for maximum acceleration.  
 
----
+
 
 ## Visuals
 
@@ -111,14 +104,12 @@ All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
 - ![Acceptance](outputs/acceptance_bar.png)  
   *Proportion of draft tokens accepted by the verifier. Larger drafts are slower but align closely (~95–96%).*  
 
----
+
 
 ## Tech Stack
-- Python, PyTorch, Hugging Face Transformers  
-- pandas, numpy, matplotlib, PyYAML  
-- Cloud GPUs (Vast.ai)
+- Python, PyTorch, Hugging Face Transformers, pandas, numpy, matplotlib, PyYAML, Cloud GPUs (Vast.ai)
 
----
+
 
 ## Workflow
 
@@ -132,15 +123,15 @@ Verifier Model (gpt2-xl)
 Metrics Logging (latency, throughput, acceptance, speedup)
         │
 Outputs (CSV tables, plots, JSON logs)
+```
 
----
+
 
 ## Next Steps
 - **Scale to larger datasets:** Move beyond PubMed QA to a bigger biomedical corpus (e.g., full PubMed abstracts or CORD-19) to test performance at scale.  
 - **Use larger verifier models:** Replace `GPT-2 XL` with modern LLMs (e.g., GPT-J, LLaMA-2, Falcon) to evaluate speculative decoding against stronger baselines.  
 - **Stress-test real-world applications:** Apply speculative decoding in latency-sensitive domains such as clinical decision support, healthcare chatbots, or biomedical literature search.  
 
----
 
 ## Conclusion
 This project shows that speculative decoding makes LLMs **2–3× faster** while preserving verifier-level accuracy. By combining **small draft models** for speed with a **large verifier model** for correctness, we reduced **latency, cost per query, and GPU load** without sacrificing quality. For biomedical QA and beyond, this approach unlocks **real-time, scalable applications** where both speed and accuracy are critical.
