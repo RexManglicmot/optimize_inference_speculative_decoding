@@ -304,12 +304,14 @@ Insights:
 
 
 ## Conclusion
-This project demonstrates that speculative decoding can significantly reduce latency and cost per query while preserving the quality of verifier outputs. By using small draft models to propose candidate continuations and a larger verifier model to validate them, we achieve faster generation without sacrificing correctness. Applied to PubMed QA, this approach highlights how efficiency gains can translate into real-world benefits for biomedical question answering.
+
+
 
 
 ## Limitations
-- **Verifier dependency:** Speculative decoding cannot correct verifier errors; it only speeds up generation while preserving the verifier’s output quality. The accuracy is just as good at the verifier. For the purpse of this experiment, accuracy was omitted.   
-- **Hugging Face API constraints:** The `assistant_model` path fixes batch size to 1 and hides per-token details, requiring separate scripts for auditing acceptance and disagreement rates.  
+
+
+
 
 
 ## Next Steps
@@ -318,4 +320,4 @@ This project demonstrates that speculative decoding can significantly reduce lat
 - **Use larger verifier models:** Replace `GPT-2 XL` with a modern LLM (e.g., `LLaMA-2`, `GPT-J-6B`, or `Falcon`) to evaluate how speculative decoding performs with stronger baselines.  
 - **Stress-test real-world applications:** Apply speculative decoding in latency-sensitive domains such as clinical decision support, healthcare chatbots, or biomedical literature search.   
 
-## AI/ML End-to-End Build Order
+# AI/ML End-to-End Build Order
