@@ -61,7 +61,7 @@ Outputs (CSV tables, plots, JSON logs)
 ## Metrics
 
 - **Latency (p50/p95):** time per token  
-- **Throughput (tok/sec):** tokens generated per second  
+- **Throughput (p50/95):** tokens generated per second  
 - **Speedup (×):** vs verifier-only baseline  
 - **Acceptance Rate (%):** % draft tokens accepted by verifier  
 
@@ -76,7 +76,7 @@ Outputs (CSV tables, plots, JSON logs)
 | gpt2 (small)          | 0.0173               | 57.7                   | 1.19×       | ~92%           |
 | Baseline (gpt2-xl)    | 0.0205               | 48.7                   | 1.00×       | N/A            |
 
-*Smaller drafts deliver the largest speedups but come with lower acceptance rates, while larger drafts achieve higher acceptance but only modest efficiency gains. Overall, `distilgpt2` strikes the best balance, offering the strongest acceleration without overly sacrificing fidelity.* 
+*Smaller drafts deliver the largest speedups but come with lower acceptance rates, while larger drafts achieve higher acceptance but only modest efficiency gains. Overall, `distilgpt2` strikes the best balance, offering the strongest acceleration without overly sacrificing fidelity. Shown are the p50, see README.report.md for full report* 
 
 ## Results: Plots
 
@@ -103,7 +103,7 @@ Outputs (CSV tables, plots, JSON logs)
 
 
 ## Conclusion
-This project shows that speculative decoding makes LLMs **2–3× faster** while preserving verifier-level accuracy. By combining **small draft models** for speed with a **large verifier model** for correctness, we reduced **latency, cost per query, and GPU load** without sacrificing quality. This approach unlocks real-time, scalable applications where both speed and accuracy are critical.
+This project shows that speculative decoding makes LLMs **2–3× faster** while preserving verifier-level accuracy. By combining small draft models for speed with a large verifier model for correctness, we **reduced latency, cost per query, and GPU load** without sacrificing quality. This approach unlocks real-time, scalable applications where both speed and accuracy are critical.
 
 ## Tech Stack
 Python, PyTorch, Hugging Face Transformers, pandas, numpy, matplotlib, PyYAML, Cloud GPUs (Vast.ai)
