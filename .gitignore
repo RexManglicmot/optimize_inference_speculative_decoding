@@ -3,15 +3,17 @@ venv_optimize_inference_speculative_decoding
 
 # Folders
 pics/
+.ipynb_checkpoints/
 
 # Files
 *.csv
 .env
-venv_optimize_inference_speculative_decoding
+rex_learning_log.md
 
 # Python
 __pycache__/
 *.pyc
+
 # large data
 metadata.csv
 *.parquet
@@ -19,3 +21,4 @@ metadata.csv
 
 # Ignore tarballs
 *.tar.gz
+
