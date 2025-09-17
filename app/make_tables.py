@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import re
 
-# --- Fixed locations (no auto-discovery) ---
+# --- Fixed locations ---
 OUTDIR = Path("outputs")
 SUMMARY_CSV = OUTDIR / "summary_table_rex_version.csv"
 AUDIT_CSV   = OUTDIR / "acceptance_audit.csv"
