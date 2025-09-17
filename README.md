@@ -14,8 +14,8 @@ Speculative decoding solves this using **small draft models** to propose token c
 
 The benefits are **lower latency**, **reduced cost per query**, **higher throughput** (serve more users per GPU), **same quality as baseline** (verifier is final authority). 
 
-## Example (PubMed QA)
-This project uses the **PubMedQA dataset** (questions + abstracts) to test speculative decoding.   In this setup, **small GPT-2 family models** (`distilgpt2`, `gpt2`, `gpt2-medium`, `gpt2-large`) act as **drafts**, while the larger **`gpt2-xl`** serves as the **verifier** that validates draft proposals.
+## Dataset (PubMedQA)
+This project uses the PubMedQA dataset (questions + abstracts) to test speculative decoding.   In this setup, small GPT-2 family models (`distilgpt2`, `gpt2`, `gpt2-medium`, `gpt2-large`) act as drafts, while the larger `gpt2-xl` serves as the verifier that validates draft proposals.
 
 **Question:**  
 *What are common first-line treatments for non-small cell lung cancer (NSCLC)?*
