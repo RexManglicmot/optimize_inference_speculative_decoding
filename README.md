@@ -8,11 +8,11 @@ Running LLM inference locally on my Mac (MPS/CPU) is **slow and costly** where e
 
 
 ## Introduction
-Large Language Models (LLMs) power apps in customer support, healthcare, and enterprise search. But, **each token → a full pass of a big model → high latency & high cost**. This makes real-time interactions hard to scale.
+Large Language Models play a huge ruge role in many domains such as customer support, healthcare, and enterprise search. But, **each token → a full pass of a big model → high latency & high cost**. This makes real-time interactions hard to scale.
 
 Speculative decoding solves this using **small draft models** to propose token candidate blocks (short sequence of 4–8 tokens, which is fast and cheap) for the large verifier. The **large verifier model** then approves/rejects these blocks based on its own distribution. An good analogy is that drafts are like interns proposing answers to a question and verifiers are like managers that approve or reject these answers. The manager doesnt have to write the answers themselves, it just checks if its right or not. Majority of the work is done by the interns, or rather the drafts. 
 
-The benefits are **lower latency**, **reduced cost per query**, **higher throughput** (serve more users per GPU), **same quality as baseline** (verifier has final authority). 
+The benefits of speculative decoding are **lower latency**, **reduced cost per query**, **higher throughput** (serve more users per GPU), **same quality as baseline** (verifier has final authority). 
 
 ## Dataset (PubMedQA)
 This project uses the PubMedQA dataset (questions + abstracts) to test speculative decoding. In this setup, small GPT-2 family models (i.e. `distilgpt2`) act as drafts, while the larger `gpt2-xl` serves as the verifier that validates draft proposals.
