@@ -4,7 +4,7 @@
 
 
 ## Inspiration
-Running LLMs locally on my Mac (MPS/CPU) was **slow and costly** where each token required a full forward pass. **Speculative decoding** offered a way to **speed up inference** by letting small draft models propose tokens and a large verifier check them in batches. This project taught me both about LLM acceleration and using cloud GPUs (Vast.ai) for real-world deployments.
+Running LLM inference locally on my Mac (MPS/CPU) is **slow and costly** where each token required a full forward pass. **Speculative decoding** offered a way to **speed up inference** by letting small draft models propose tokens and a large verifier check them in batches. This project taught me both about LLM acceleration and using cloud GPUs (Vast.ai) for real-world deployments.
 
 
 ## Introduction
@@ -12,7 +12,7 @@ Large Language Models (LLMs) power apps in customer support, healthcare, and ent
 
 Speculative decoding solves this using **small draft models** to propose token candidate blocks (short sequence of 4–8 tokens) proposed at once which is fast and cheap for the verifier and a **large verifier model** to approve/reject these blocks. An analogis is that drafts are like interns proposing answers and verifiers are like managers that approve or reject. The manager doesnt have to write the answers themselves, it just checks.
 
-The benefits are **lower latency**, **reduced cost per query**, **higher throughput** (serve more users per GPU)**, **same quality as baseline** (verifier is final authority). 
+The benefits are **lower latency**, **reduced cost per query**, **higher throughput** (serve more users per GPU), **same quality as baseline** (verifier is final authority). 
 
 ## Example (PubMed QA)
 
@@ -106,4 +106,4 @@ Outputs (CSV tables, plots, JSON logs)
 This project shows that speculative decoding makes LLMs **2–3× faster** while preserving verifier-level accuracy. By combining **small draft models** for speed with a **large verifier model** for correctness, we reduced **latency, cost per query, and GPU load** without sacrificing quality. This approach unlocks real-time, scalable applications where both speed and accuracy are critical.
 
 ## Tech Stack
-- Python, PyTorch, Hugging Face Transformers, pandas, numpy, matplotlib, PyYAML, Cloud GPUs (Vast.ai)
+Python, PyTorch, Hugging Face Transformers, pandas, numpy, matplotlib, PyYAML, Cloud GPUs (Vast.ai)
