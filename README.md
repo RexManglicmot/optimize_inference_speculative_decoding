@@ -4,11 +4,11 @@
 
 
 ## Inspiration
-Running LLMs locally on Mac (MPS/CPU) was **slow and costly** — each token required a full forward pass. **Speculative decoding** offered a way to **speed up inference** by letting small draft models propose tokens and a large verifier check them in batches. This project taught me both about LLM acceleration and using cloud GPUs (Vast.ai) for real-world deployments.
+Running LLMs locally on my Mac (MPS/CPU) was **slow and costly** where each token required a full forward pass. **Speculative decoding** offered a way to **speed up inference** by letting small draft models propose tokens and a large verifier check them in batches. This project taught me both about LLM acceleration and using cloud GPUs (Vast.ai) for real-world deployments.
 
 
 ## Introduction
-Large Language Models (LLMs) power apps in customer support, healthcare, and enterprise search. But, **each token ->  a full pass of a big model → high latency & high cost**. This makes real-time interactions hard to scale.
+Large Language Models (LLMs) power apps in customer support, healthcare, and enterprise search. But, **each token → a full pass of a big model → high latency & high cost**. This makes real-time interactions hard to scale.
 
 Speculative decoding solves this by:  
 - Using **small draft models** to propose token blocks (cheap & fast)  
@@ -71,6 +71,25 @@ All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
 - **Acceptance Rate (%):** % draft tokens accepted by verifier  
 
 
+## Tech Stack
+- Python, PyTorch, Hugging Face Transformers, pandas, numpy, matplotlib, PyYAML, Cloud GPUs (Vast.ai)
+
+## Workflow
+
+```text
+Dataset (PubMed QA: Questions + Abstracts)
+        │
+Draft Models (distilgpt2, gpt2, gpt2-medium, gpt2-large)
+        │  → propose k tokens
+Verifier Model (gpt2-xl)
+        │  → accepts/rejects
+Metrics Logging (latency, throughput, acceptance, speedup)
+        │
+Outputs (CSV tables, plots, JSON logs)
+```
+
+
+
 ## Results at a Glance
 
 | Model                | Latency p50 (s/token) | Throughput p50 (tok/s) | Speedup (×) | Acceptance (%) |
@@ -103,27 +122,6 @@ All models are from the **GPT-2 family** (shared tokenizer ensures alignment).
 ![Acceptance](outputs/acceptance_bar.png)  
     *Percentage of draft tokens accepted by the verifier. Larger drafts such as `gpt2-medium` and `gpt2-large` align closely with the verifier (≈95–96%), while `distilgpt2` has lower acceptance (~80%) but still provides strong speed improvements. The chart highlights the balance between speed (small drafts) and fidelity (large drafts).*  
   
-
-## Tech Stack
-- Python, PyTorch, Hugging Face Transformers, pandas, numpy, matplotlib, PyYAML, Cloud GPUs (Vast.ai)
-
-
-
-## Workflow
-
-```text
-Dataset (PubMed QA: Questions + Abstracts)
-        │
-Draft Models (distilgpt2, gpt2, gpt2-medium, gpt2-large)
-        │  → propose k tokens
-Verifier Model (gpt2-xl)
-        │  → accepts/rejects
-Metrics Logging (latency, throughput, acceptance, speedup)
-        │
-Outputs (CSV tables, plots, JSON logs)
-```
-
-
 
 ## Next Steps
 - **Scale to larger datasets:** Move beyond PubMed QA to a bigger biomedical corpus (e.g., full PubMed abstracts or CORD-19) to test performance at scale.  
