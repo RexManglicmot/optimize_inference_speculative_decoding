@@ -9,6 +9,7 @@ pics/
 *.csv
 .env
 rex_learning_log.md
+optimize_inference_speculative_decoding.code-workspace
 
 # Python
 __pycache__/
