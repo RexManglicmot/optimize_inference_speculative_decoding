@@ -1,9 +1,12 @@
 ## Inspiration for this Project
 Inference takes a long time, and when I first started I ran LLMs locally on my MacOS which had a MPS and CPU. Because of such, generating the results took such a long time, and I wanted a learn a way to speed up inference and thus this project. Learning about speculative decoding made me push myself to work with GPUs via the cloud on Vast Ai. Now, I know both about speeding up inference and am comfortable using third party GPUs platforms in projects. 
 
+---
 
 ## Introduction
 Large Language Models (LLMs) enable powerful applications in customer support, healthcare Q&A, and enterprise search. However, they are **slow and expensive to run in production**: **each generated token requires a full forward pass through a large model**, leading to high latency for users and high compute costs for companies. This makes it difficult to deliver real-time interactions at scale without overspending on infrastructure.
+
+---
 
 ## Speculative Decoding
 Speculative decoding is a technique to accelerate LLM inference while preserving output quality. Instead of generating tokens one by one with a large and costly model, several smaller draft models propose multiple tokens in parallel. A larger verifier model then checks these tokens in a single pass:
@@ -14,28 +17,34 @@ Speculative decoding is a technique to accelerate LLM inference while preserving
 This mechanism allows speculative decoding to achieve significant latency reductions and lower cost per query, without sacrificing the correctness of the verifier’s outputs.
 
 Business & Technical Benefits:
-1) Lower latency → real-time responsiveness improves user experience.
-2) Reduced cost per query → fewer verifier passes cut GPU/cloud spend.
-3) Higher throughput → serve more users with the same infrastructure. 
-4) Preserved quality → outputs remain as accurate as the verifier baseline, maintaining trust in critical domains like healthcare and finance.
+1) **Lower latency** → real-time responsiveness improves user experience.
+2) **Reduced cost per query** → fewer verifier passes cut GPU/cloud spend.
+3) **Higher throughput** → serve more users with the same infrastructure. 
+4) **Preserved quality** → outputs remain as accurate as the verifier baseline, maintaining trust in critical domains like healthcare and finance.
+
+---
 
 ## Key Terms
-- **Draft models (small and fast):**  
+
+**Draft models (small and fast):**  
   Lightweight language models that quickly generate short blocks of candidate tokens.  
   They are cheaper to run and act as “speculators,” proposing possible continuations of the answer.
 
-- **Verifier model (large and accurate):**  
+**Verifier model (large and accurate):**  
   A larger language model that validates the draft tokens against its own probability distribution.  
   It ensures that the final output matches the quality of the baseline verifier-only system.
 
-- **Token block:**  
+**Token block:**  
   A short sequence of tokens (e.g., 4–8) proposed by a draft model at once.  
   Blocks allow the verifier to check multiple tokens in a single pass, rather than generating them one by one.
 
-- Draft models = **interns** quickly proposing ideas.  
-- Verifier = **senior expert** who approves or corrects them.  
-- The system saves effort because the expert doesn’t need to write every word, just approve or fix the interns’ suggestions.
+Intuition:
+Draft models = **interns** quickly proposing ideas.  
+Verifier = **senior expert** who approves or corrects them.  
 
+The system saves effort because the expert doesn’t need to write every word, just approve or fix the interns’ suggestions.
+
+---
 
 ## Example: PubMed QA
 
@@ -104,11 +113,10 @@ This **draft → verify → accept/reject → commit** cycle repeats until the a
 
 ### Why Not Let the Verifier check it all?
 
-The large verifier model **can** generate the full answer on its own, but doing so is **slow and costly**. Because it must run a **full forward pass for every single token**.  
-If an answer is ~100 tokens long, that means ~100 expensive passes. **Speculative decoding makes this faster.**
+The large verifier model **can** generate the full answer on its own, but doing so is **slow and costly**. Because it must run a **full forward pass for every single token**. If an answer is ~100 tokens long, that means ~100 expensive passes. **Speculative decoding makes this faster.**
 
 
-### Why a Separate Was Needed
+### Caveat
 
 Most of the work is done in `benchmark.py` with the help the Hugging Face `assistant_model` argument path thats provides a fast way to run speculative decoding, but it comes with key limitations:
 
@@ -120,6 +128,7 @@ Most of the work is done in `benchmark.py` with the help the Hugging Face `assis
 Built a **separate audit script** `audit_benchmark.py` that replays prompts through the drafts and verifier explicitly. This slower path captures per-token acceptance/disagreement and logs full fidelity metrics, while the main speculative loop remains optimized for generation speed.
 
 
+---
 
 ## Dataset
 PubMedQA
@@ -130,6 +139,8 @@ Columns
 -`abstract`: Abstract text to generate over
 
 Baseline-Fideliuty Evaluation. No Gold labels
+
+---
 
 ## Models
 
@@ -302,20 +313,25 @@ Insights:
 
 **Main takeaway**: Small drafts like `distilgpt2` give big latency/throughput gains, but the verifier discards more tokens (lower acceptance). Larger drafts (`gpt2-medium` / `gpt2-large`) are slower but achieve very high acceptance, minimizing wasted computation. In sum, choose the draft size depending on outcome: maximum speedup (small draft) or maximum efficiency/accuracy (larger draft).
 
+---
 
 ## Conclusion
 This project demonstrates that speculative decoding can significantly reduce latency and cost per query while preserving the quality of verifier outputs. By using small draft models to propose candidate continuations and a larger verifier model to validate them, we achieve faster generation without sacrificing correctness. Applied to PubMed QA, this approach highlights how efficiency gains can translate into real-world benefits for biomedical question answering.
 
+---
 
 ## Limitations
 - **Verifier dependency:** Speculative decoding cannot correct verifier errors; it only speeds up generation while preserving the verifier’s output quality. The accuracy is just as good at the verifier. For the purpse of this experiment, accuracy was omitted.   
 - **Hugging Face API constraints:** The `assistant_model` path fixes batch size to 1 and hides per-token details, requiring separate scripts for auditing acceptance and disagreement rates.  
 
+---
 
 ## Next Steps
 
 - **Scale to larger datasets:** Move beyond PubMed QA to a bigger biomedical corpus (e.g., full PubMed abstracts or CORD-19) to test performance at scale.  
 - **Use larger verifier models:** Replace `GPT-2 XL` with a modern LLM (e.g., `LLaMA-2`, `GPT-J-6B`, or `Falcon`) to evaluate how speculative decoding performs with stronger baselines.  
 - **Stress-test real-world applications:** Apply speculative decoding in latency-sensitive domains such as clinical decision support, healthcare chatbots, or biomedical literature search.   
+
+---
 
 ## AI/ML End-to-End Build Order
