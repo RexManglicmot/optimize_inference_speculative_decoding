@@ -99,9 +99,8 @@ Outputs (CSV tables, plots, JSON logs)
 | gpt2-large            | 0.0172               | 58.0                   | 1.19×       | ~96%           |
 | gpt2 (small)          | 0.0173               | 57.7                   | 1.19×       | ~92%           |
 | Baseline (gpt2-xl)    | 0.0205               | 48.7                   | 1.00×       | N/A            |
- 
-    *Smaller drafts deliver the largest speedups but come with lower acceptance rates, while larger drafts achieve higher acceptance but only modest efficiency gains. Overall, `distilgpt2` strikes the best balance, offering the strongest acceleration without overly sacrificing fidelity.*  
 
+*Smaller drafts deliver the largest speedups but come with lower acceptance rates, while larger drafts achieve higher acceptance but only modest efficiency gains. Overall, `distilgpt2` strikes the best balance, offering the strongest acceleration without overly sacrificing fidelity.* 
 
 ## Plots
 
