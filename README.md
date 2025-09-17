@@ -60,10 +60,13 @@ Outputs (CSV tables, plots, JSON logs)
 
 ## Metrics
 
-- **Latency (p50/p95):** time per token  
-- **Throughput (p50/95):** tokens generated per second  
-- **Speedup (×):** vs verifier-only baseline  
-- **Acceptance Rate (%):** % draft tokens accepted by verifier  
+- **Latency (p50/p95):** time per token. Measures how long each token takes to generate; lower latency means faster, more responsive outputs
+
+- **Throughput (p50/95):** tokens generated per second. Tracks tokens generated per second; higher throughput means serving more users on the same hardware.
+
+- **Speedup (×):** Compares performance to the verifier-only baseline; shows the efficiency gain from speculative decoding.
+
+- **Acceptance Rate (%):** Percentage of draft tokens kept by the verifier; higher acceptance means fewer corrections and better efficiency.
 
 
 ## Results: Table
