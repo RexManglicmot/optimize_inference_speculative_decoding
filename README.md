@@ -10,28 +10,9 @@ Running LLMs locally on my Mac (MPS/CPU) was **slow and costly** where each toke
 ## Introduction
 Large Language Models (LLMs) power apps in customer support, healthcare, and enterprise search. But, **each token → a full pass of a big model → high latency & high cost**. This makes real-time interactions hard to scale.
 
-Speculative decoding solves this by:  
-- Using **small draft models** to propose token blocks (cheap & fast)  
-- Using a **large verifier model** to approve/reject in one pass (accurate)  
+Speculative decoding solves this using **small draft models** to propose token candidate blocks (short sequence of 4–8 tokens) proposed at once which is fast and cheap for the verifier and a **large verifier model** to approve/reject these blocks. An analogis is that drafts are like interns proposing answers and verifiers are like managers that approve or reject. The manager doesnt have to write the answers themselves, it just checks.
 
-Benefits:  
-- **Lower latency**  
-- **Reduced cost per query**   
-- **Higher throughput (serve more users per GPU)**   
-- **Same quality as baseline (verifier is final authority)** 
-
-
-## Key Terms
-- **Draft models:** Small, fast LLMs that speculate candidate tokens.  
-- **Verifier model:** Large, accurate LLM that validates draft tokens.  
-- **Token block:** Short sequence (4–8 tokens) proposed at once.  
-- **Acceptance rate:** % of draft tokens approved by the verifier.  
-
-*Analogy:* 
-- Drafts = interns proposing answers. 
-- Verifier = manager approving/correcting. 
-- Faster than the manager writing everything themselves.
-
+The benefits are **lower latency**,**reduced cost per query**,**higher throughput (serve more users per GPU)**, **same quality as baseline (verifier is final authority)**. 
 
 ## Example (PubMed QA)
 
@@ -90,7 +71,7 @@ Outputs (CSV tables, plots, JSON logs)
 
 
 
-## Table
+## Results: Table
 
 | Model                | Latency p50 (s/token) | Throughput p50 (tok/s) | Speedup (×) | Acceptance (%) |
 |-----------------------|-----------------------|-------------------------|-------------|----------------|
@@ -102,7 +83,7 @@ Outputs (CSV tables, plots, JSON logs)
 
 *Smaller drafts deliver the largest speedups but come with lower acceptance rates, while larger drafts achieve higher acceptance but only modest efficiency gains. Overall, `distilgpt2` strikes the best balance, offering the strongest acceleration without overly sacrificing fidelity.* 
 
-## Plots
+## Results: Plots
 
 ![Latency](outputs/latency_grouped_p50_p95.png)  
     *Median (p50) and tail (p95) latency per token. Draft models significantly reduce latency compared to the baseline verifier-only run. The smallest draft, `distilgpt2`, cuts latency by more than half, showing speculative decoding’s strongest gains in responsiveness.*  
