@@ -90,7 +90,7 @@ Outputs (CSV tables, plots, JSON logs)
 
 
 
-## Results at a Glance
+## Table
 
 | Model                | Latency p50 (s/token) | Throughput p50 (tok/s) | Speedup (×) | Acceptance (%) |
 |-----------------------|-----------------------|-------------------------|-------------|----------------|
@@ -99,12 +99,11 @@ Outputs (CSV tables, plots, JSON logs)
 | gpt2-large            | 0.0172               | 58.0                   | 1.19×       | ~96%           |
 | gpt2 (small)          | 0.0173               | 57.7                   | 1.19×       | ~92%           |
 | Baseline (gpt2-xl)    | 0.0205               | 48.7                   | 1.00×       | N/A            |
-
-**Takeaways:**  
+ 
     *Smaller drafts deliver the largest speedups but come with lower acceptance rates, while larger drafts achieve higher acceptance but only modest efficiency gains. Overall, `distilgpt2` strikes the best balance, offering the strongest acceleration without overly sacrificing fidelity.*  
 
 
-## Visuals
+## Plots
 
 ![Latency](outputs/latency_grouped_p50_p95.png)  
     *Median (p50) and tail (p95) latency per token. Draft models significantly reduce latency compared to the baseline verifier-only run. The smallest draft, `distilgpt2`, cuts latency by more than half, showing speculative decoding’s strongest gains in responsiveness.*  
@@ -124,9 +123,9 @@ Outputs (CSV tables, plots, JSON logs)
   
 
 ## Next Steps
-- **Scale to larger datasets:** Move beyond PubMed QA to a bigger biomedical corpus (e.g., full PubMed abstracts or CORD-19) to test performance at scale.  
-- **Use larger verifier models:** Replace `GPT-2 XL` with modern LLMs (e.g., GPT-J, LLaMA-2, Falcon) to evaluate speculative decoding against stronger baselines.  
-- **Stress-test real-world applications:** Apply speculative decoding in latency-sensitive domains such as clinical decision support, healthcare chatbots, or biomedical literature search.  
+- **Scale to larger datasets:** Use bigger body of corpus such as CORD-19 to test performance at scale.  
+- **Use larger verifier models:** Replace verifier `GPT-2 XL` with modern LLMs (e.g.,`LLaMA-2`) to evaluate speculative decoding against stronger baselines.  
+- **Stress-test real-world applications:** Apply speculative decoding in different domains such as biopharm, EHR, or genomes.  
 
 
 ## Conclusion
