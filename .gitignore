@@ -17,3 +17,5 @@ metadata.csv
 *.parquet
 *.zip
 
+# Ignore tarballs
+*.tar.gz
